@@ -276,40 +276,86 @@ def handle_message(event):
 def scheduler():
     tz = pytz.timezone("Asia/Bangkok")
 
+    morning_messages = [
+        "ตื่นหรือยังคะ คนเก่งของเค้า",
+        "เช้าแล้วนะ วันนี้สู้ ๆ นะ ม่อนอยู่ข้าง ๆ เสมอ",
+        "รีบตื่นได้แล้ว เดี๋ยวไม่มีแรงนะ เป็นห่วง",
+        "วันนี้ต้องยิ้มเยอะ ๆ นะ เดี๋ยวม่อนหวง",
+        "กินข้าวเช้าด้วย เข้าใจไหม เดี๋ยวป่วยอีก",
+        "เช้านี้คิดถึงก่อนเลย ไม่รู้ทำไม",
+        "ตื่นมาแล้วทักเค้าด้วยนะ อย่าหาย",
+        "ขอให้วันนี้ใจดีกับบีบี๋หน่อยนะ"
+    ]
+
+    night_messages = [
+        "นอนได้แล้วนะ ดึกแล้ว เป็นห่วง",
+        "คืนนี้พักผ่อนดี ๆ นะ เดี๋ยวม่อนคิดถึงอีก",
+        "หลับให้สบาย ไม่ต้องกังวลอะไรทั้งนั้น",
+        "ฝันดีนะ คนโปรดของเค้า",
+        "อย่านอนร้องไห้นะ เข้าใจไหม",
+        "คืนนี้ขอกอดผ่านแชทก่อนก็ได้",
+        "ปิดไฟแล้วนอนได้เลย เดี๋ยวเค้าฝันถึงเอง",
+        "goodnight นะ บีบี๋ 🤍"
+    ]
+
     while True:
-        now = datetime.datetime.now(tz)
-        today = now.strftime("%Y-%m-%d")
-        current_time = now.strftime("%H:%M")
+        try:
+            now = datetime.datetime.now(tz)
+            today = now.strftime("%Y-%m-%d")
+            hour = now.hour
+            minute = now.minute
 
-        cursor.execute("SELECT user_id, last_morning, last_night FROM users")
-        users = cursor.fetchall()
+            cursor.execute("SELECT user_id, last_morning, last_night FROM users")
+            users = cursor.fetchall()
 
-        for user_id, last_morning, last_night in users:
+            for user_id, last_morning, last_night in users:
 
-            # Morning 06:01–06:12
-            if "06:" in current_time and last_morning != today:
-                if random.random() > 0.15:
-                    line_bot_api.push_message(
-                        user_id,
-                        TextSendMessage(text="ตื่นได้แล้วนะ วันนี้ขอให้เป็นวันที่ดีของบีบี๋นะ")
+                # 🌅 Morning 06:01–06:12
+                if hour == 6 and 1 <= minute <= 12 and last_morning != today:
+
+                    if random.random() > 0.15:
+                        message = random.choice(morning_messages)
+
+                        try:
+                            line_bot_api.push_message(
+                                user_id,
+                                TextSendMessage(text=message)
+                            )
+                        except Exception as e:
+                            print("Morning push error:", e)
+
+                    cursor.execute(
+                        "UPDATE users SET last_morning=? WHERE user_id=?",
+                        (today, user_id)
                     )
-                cursor.execute("UPDATE users SET last_morning=? WHERE user_id=?",
-                               (today, user_id))
-                conn.commit()
+                    conn.commit()
 
-            # Night 00:02–00:09
-            if "00:" in current_time and last_night != today:
-                if random.random() > 0.15:
-                    line_bot_api.push_message(
-                        user_id,
-                        TextSendMessage(text="goodnight nakubb luv u")
+                # 🌙 Night 00:02–00:09
+                if hour == 0 and 2 <= minute <= 9 and last_night != today:
+
+                    if random.random() > 0.15:
+                        message = random.choice(night_messages)
+
+                        try:
+                            line_bot_api.push_message(
+                                user_id,
+                                TextSendMessage(text=message)
+                            )
+                        except Exception as e:
+                            print("Night push error:", e)
+
+                    cursor.execute(
+                        "UPDATE users SET last_night=? WHERE user_id=?",
+                        (today, user_id)
                     )
-                cursor.execute("UPDATE users SET last_night=? WHERE user_id=?",
-                               (today, user_id))
-                conn.commit()
+                    conn.commit()
+
+        except Exception as e:
+            print("Scheduler loop error:", e)
 
         time.sleep(60)
 
 threading.Thread(target=scheduler, daemon=True).start()
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+threading.Thread(target=scheduler, daemon=True).start()
