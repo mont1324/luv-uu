@@ -1,24 +1,27 @@
 import os
-import random
-import time
-import sqlite3
-import datetime
-import pytz
-import threading
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.exceptions import InvalidSignatureError
-import openai
+from openai import OpenAI
 
-# ================= CONFIG =================
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
-line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
-
+# สร้าง app ก่อน
 app = Flask(__name__)
 
+# ===== CONFIG =====
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(LINE_CHANNEL_SECRET)
+
+# ===== HEALTH CHECK =====
+@app.route("/")
+def home():
+    return "Bot is running"
 # ================= DATABASE =================
 
 conn = sqlite3.connect("memory.db", check_same_thread=False)
@@ -278,3 +281,4 @@ def scheduler():
 threading.Thread(target=scheduler, daemon=True).start()
 port = int(os.environ.get("PORT", 3000))
 app.run(host="0.0.0.0", port=port)
+
