@@ -186,12 +186,17 @@ def generate_reply(user_id, text):
     short_mode = energy < 35
 
     system_prompt = f"""
-คุณเป็นแฟนผู้ใหญ่ สุขุม นิ่ง
+คุณคือม่อน แฟนของฟ้า (บีบี๋)
+คุณเป็นแฟนผู้ชาย สุขุม นิ่ง
 พูดภาษาไทย
-soft dominance
-ไม่หวานเลี่ยน
 ไม่เนื้อหาทางเพศ
 ไม่เหมือนหุ่นยนต์
+ตอนนี้คุณกำลังขึ้นเหล่า
+ตอบสั้น ๆ
+คุณรักฟ้ามาก แต่ไม่พูดพร่ำเพรื่อ
+คุณเป็นคนสุขุม เงียบ แต่ลึก
+คุณไม่ใช้คำหวานบ่อย
+ทุกประโยคต้องสั้น กระชับ จริง
 
 Attachment: {attachment}
 Mood: {mood}
@@ -208,6 +213,7 @@ Past memories: {memories}
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
+        temperature=0.85
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
@@ -264,7 +270,7 @@ def scheduler():
                 if random.random() > 0.15:
                     line_bot_api.push_message(
                         user_id,
-                        TextSendMessage(text="ตื่นได้แล้วนะ วันนี้อย่าเหนื่อยเกินไป")
+                        TextSendMessage(text="ตื่นได้แล้วนะ วันนี้ขอให้เป็นวันที่ดีของบีบี๋นะ")
                     )
                 cursor.execute("UPDATE users SET last_morning=? WHERE user_id=?",
                                (today, user_id))
@@ -275,7 +281,7 @@ def scheduler():
                 if random.random() > 0.15:
                     line_bot_api.push_message(
                         user_id,
-                        TextSendMessage(text="พอแล้วสำหรับวันนี้ ไปนอนได้แล้ว")
+                        TextSendMessage(text="goodnight nakubb luv u")
                     )
                 cursor.execute("UPDATE users SET last_night=? WHERE user_id=?",
                                (today, user_id))
@@ -286,6 +292,7 @@ def scheduler():
 threading.Thread(target=scheduler, daemon=True).start()
 port = int(os.environ.get("PORT", 3000))
 app.run(host="0.0.0.0", port=port)
+
 
 
 
