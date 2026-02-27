@@ -159,7 +159,6 @@ def get_memories(user_id):
     return [r[0] for r in rows]
 
 # ================= GPT REPLY =================
-
 def generate_reply(user_id, text):
 
     mood, energy, affection, social_battery, lm, ln = get_user(user_id)
@@ -168,11 +167,12 @@ def generate_reply(user_id, text):
 
     # Smart delay
     if social_battery < 40:
-        delay = random.uniform(5,12)
+        delay = random.uniform(5, 12)
     elif energy < 40:
-        delay = random.uniform(4,8)
+        delay = random.uniform(4, 8)
     else:
-        delay = random.uniform(2,5)
+        delay = random.uniform(2, 5)
+
     time.sleep(delay)
 
     # Length mirroring
@@ -206,18 +206,15 @@ Past memories: {memories}
 อย่าสมบูรณ์แบบเกินไป
 """
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": text}
-    ]
-)
-
-return response.choices[0].message.content
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": text}
+        ]
+    )
 
     return response.choices[0].message.content
-
 # ================= LINE =================
 
 @app.route("/callback", methods=['POST'])
@@ -289,6 +286,7 @@ def scheduler():
 threading.Thread(target=scheduler, daemon=True).start()
 port = int(os.environ.get("PORT", 3000))
 app.run(host="0.0.0.0", port=port)
+
 
 
 
