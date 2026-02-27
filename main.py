@@ -206,13 +206,15 @@ Past memories: {memories}
 อย่าสมบูรณ์แบบเกินไป
 """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role":"system","content":system_prompt},
-            {"role":"user","content":text}
-        ]
-    )
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": text}
+    ]
+)
+
+return response.choices[0].message.content
 
     return response.choices[0].message.content
 
@@ -287,5 +289,6 @@ def scheduler():
 threading.Thread(target=scheduler, daemon=True).start()
 port = int(os.environ.get("PORT", 3000))
 app.run(host="0.0.0.0", port=port)
+
 
 
