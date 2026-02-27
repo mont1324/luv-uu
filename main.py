@@ -219,7 +219,6 @@ Past memories: {memories}
 
 ตอบให้ความยาวแบบ {reply_length}
 ถ้า short_mode={short_mode} ให้ตอบสั้นมาก
-บางครั้งขึ้นต้นด้วย อืม / เออ / …
 อย่าสมบูรณ์แบบเกินไป
 """
 
@@ -302,6 +301,7 @@ def scheduler():
         time.sleep(60)
 
 threading.Thread(target=scheduler, daemon=True).start()
+
 
 
 
