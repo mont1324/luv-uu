@@ -1,4 +1,10 @@
 import os
+import random
+import time
+import sqlite3
+import datetime
+import pytz
+import threading
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
@@ -281,4 +287,5 @@ def scheduler():
 threading.Thread(target=scheduler, daemon=True).start()
 port = int(os.environ.get("PORT", 3000))
 app.run(host="0.0.0.0", port=port)
+
 
